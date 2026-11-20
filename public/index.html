@@ -96,7 +96,18 @@ Vehicle positions are simulated and do not represent real GPS data.
 </section>
 <aside>
 <div class="panel">
-<h2>Race comparison</h2>
+  <h2>Race comparison</h2>
+  <div class="stats">
+    <div class="stat">
+      <small>Simulation time</small>
+      <b id="time">00:00:00</b>
+    </div>
+    <div class="stat">
+      <small>Distance lead</small>
+      <b id="lead">0.0 km</b>
+    </div>
+  </div>
+</div>
 
 <div class="panel">
   <div class="car-title">
@@ -427,12 +438,12 @@ car.acceleration = vehicle.acceleration_0_100_s
   ? 100 / Number(vehicle.acceleration_0_100_s)
   : 10;
 car.consumption = Number(vehicle.fuel_consumption_l_100km) || 8;
-const specs = JSON.parse(vehicle.specifications_json || "{}");
+const vehicleSpecs = JSON.parse(vehicle.specifications_json || "{}");
 
 car.fuelTank = Number(vehicle.fuel_tank_l) > 0
   ? Number(vehicle.fuel_tank_l)
-  : Number(specs.fuelTankLitres) > 0
-    ? Number(specs.fuelTankLitres)
+  : Number(vehicleSpecs.fuelTankLitres) > 0
+    ? Number(vehicleSpecs.fuelTankLitres)
     : 50;
 
 car.fuel = car.fuelTank;
