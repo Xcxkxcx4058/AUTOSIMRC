@@ -272,25 +272,30 @@ function tick(timestamp) {
 
   state.elapsed += simulatedDelta;
 
-  for (const [car, targetSpeed, acceleration, consumption] of [
-    [state.a, 105, 12, 0.00065],
-    [state.b, 98, 10, 0.00072]
-  ]) {
-    const oldSpeed = Number(car.speed) || 0;
+  for (const car of [state.a, state.b]) {
+  const oldSpeed = Number(car.speed) || 0;
 
-    car.speed = Math.min(
-      targetSpeed,
-      oldSpeed + acceleration * simulatedDelta
-    );
-
-    const averageSpeed = (oldSpeed + car.speed) / 2;
-
-    const km = averageSpeed * simulatedDelta / 3600;
-
-    car.distance += km;
-    car.progress = Math.min(1, car.distance / totalKm);
-    car.fuel = Math.max(0, car.fuel - km * consumption);
+  if (car.fuel <= 0) {
+    car.speed = 0;
+    continue;
   }
+
+  car.speed = Math.min(
+    car.maxSpeed || 100,
+    oldSpeed + (car.acceleration || 10) * simulatedDelta
+  );
+
+  const averageSpeed = (oldSpeed + car.speed) / 2;
+  const km = averageSpeed * simulatedDelta / 3600;
+
+  car.distance += km;
+  car.progress = Math.min(1, car.distance / totalKm);
+
+  car.fuel = Math.max(
+    0,
+    car.fuel - km * (car.consumption || 8) / 100
+  );
+}
 
   update();
 
@@ -325,15 +330,23 @@ document.getElementById('pause').disabled=true;
 };
 
 document.getElementById('reset').onclick=()=>{
-state.running=false;state.elapsed=0;state.last=0;
-state.a={progress:0,speed:0,distance:0,fuel:50};
-state.b={progress:0,speed:0,distance:0,fuel:55};
-document.getElementById('runStatus').textContent='Simulation stopped';
-document.getElementById('start').disabled=false;
-document.getElementById('pause').disabled=true;
-update();
-};
+  state.running=false;
+  state.elapsed=0;
+  state.last=0;
 
+  for (const [letter, car] of [["A", state.a], ["B", state.b]]) {
+    car.progress=0;
+    car.speed=0;
+    car.distance=0;
+    car.fuel=car.fuelTank || 50;
+  }
+
+  document.getElementById('runStatus').textContent='Simulation stopped';
+  document.getElementById('start').disabled=false;
+  document.getElementById('pause').disabled=true;
+
+  update();
+};
 
 
 async function setupVehicleSelector(letter) {
@@ -400,11 +413,49 @@ async function setupVehicleSelector(letter) {
     };
 
     variantSelect.onchange = () => {
-      const selected = variantSelect.selectedOptions[0];
-      if (selected && selected.value) {
-        details.textContent = "Selected database vehicle: " + selected.textContent;
-      }
-    };
+  const selectedId = Number(variantSelect.value);
+  const vehicle = data.variants.find(x => x.id === selectedId);
+
+  if (!vehicle) return;
+
+  const car = letter === "A" ? state.a : state.b;
+
+car.maxSpeed = Number(vehicle.top_speed_kmh) || 100;
+car.acceleration = vehicle.acceleration_0_100_s
+  ? 100 / Number(vehicle.acceleration_0_100_s)
+  : 10;
+car.consumption = Number(vehicle.fuel_consumption_l_100km) || 8;
+car.fuelTank = Number(vehicle.fuel_tank_l) || 50;
+car.fuel = car.fuelTank;
+car.speed = 0;
+car.distance = 0;
+car.progress = 0;
+      
+  window["selectedVehicle" + letter] = vehicle;
+
+  const title = `${vehicle.make} ${vehicle.model} — ${vehicle.variant}`;
+  const specs = [
+    vehicle.year_from && vehicle.year_to
+      ? `Years: ${vehicle.year_from}–${vehicle.year_to}`
+      : null,
+    vehicle.engine_displacement_cc
+      ? `Engine: ${vehicle.engine_displacement_cc} cc`
+      : null,
+    vehicle.power_hp ? `Power: ${vehicle.power_hp} HP` : null,
+    vehicle.torque_nm ? `Torque: ${vehicle.torque_nm} Nm` : null,
+    vehicle.weight_kg ? `Weight: ${vehicle.weight_kg} kg` : null,
+    vehicle.fuel_consumption_l_100km
+      ? `Consumption: ${vehicle.fuel_consumption_l_100km} L/100 km`
+      : null,
+    vehicle.fuel_tank_l ? `Fuel tank: ${vehicle.fuel_tank_l} L` : null,
+    vehicle.top_speed_kmh ? `Top speed: ${vehicle.top_speed_kmh} km/h` : null,
+    vehicle.acceleration_0_100_s
+      ? `0–100 km/h: ${vehicle.acceleration_0_100_s} s`
+      : null
+  ].filter(Boolean);
+
+  details.textContent = title + " | " + specs.join(" | ");
+};
 
   } catch (error) {
     details.textContent = "Could not load vehicle database.";
