@@ -214,33 +214,57 @@ moveMarker(markerB,b.progress);
 }
 
 
-function tick(timestamp){
-  if(!state.running)return;
-  if(!state.last)state.last=timestamp;
-  const dt=Math.min((timestamp-state.last)/1000,.1);
-  state.last=timestamp;
-  state.elapsed+=dt*60;
 
-  for(const [car,pace,consumption] of [
-    [state.a,105,.00065],[state.b,98,.00072]
-  ]){
-    car.speed=pace;
-    const km=pace*dt*60/3600;
-    car.distance+=km;
-    car.progress=Math.min(1,car.distance/totalKm);
-    car.fuel=Math.max(0,car.fuel-km*consumption);
+function tick(timestamp) {
+  if (!state.running) return;
+
+  if (!state.last) state.last = timestamp;
+
+  const dt = Math.min((timestamp - state.last) / 1000, 0.1);
+  state.last = timestamp;
+
+  const multiplier = Number(
+    document.getElementById('speedMultiplier').value
+  );
+
+  const simulatedDelta = dt * multiplier;
+
+  state.elapsed += simulatedDelta;
+
+  for (const [car, targetSpeed, acceleration, consumption] of [
+    [state.a, 105, 12, 0.00065],
+    [state.b, 98, 10, 0.00072]
+  ]) {
+    const oldSpeed = Number(car.speed) || 0;
+
+    car.speed = Math.min(
+      targetSpeed,
+      oldSpeed + acceleration * simulatedDelta
+    );
+
+    const averageSpeed = (oldSpeed + car.speed) / 2;
+
+    const km = averageSpeed * simulatedDelta / 3600;
+
+    car.distance += km;
+    car.progress = Math.min(1, car.distance / totalKm);
+    car.fuel = Math.max(0, car.fuel - km * consumption);
   }
 
   update();
-  if(state.a.progress>=1&&state.b.progress>=1){
-    state.running=false;
-    document.getElementById('runStatus').textContent='Demonstration completed';
-    document.getElementById('start').disabled=false;
-    document.getElementById('pause').disabled=true;
+
+  if (state.a.progress >= 1 && state.b.progress >= 1) {
+    state.running = false;
+    document.getElementById('runStatus').textContent =
+      'Demonstration completed';
+    document.getElementById('start').disabled = false;
+    document.getElementById('pause').disabled = true;
     return;
   }
+
   requestAnimationFrame(tick);
 }
+
 
 
 document.getElementById('start').onclick=()=>{
