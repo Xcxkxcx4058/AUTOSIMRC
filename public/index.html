@@ -1,308 +1,253 @@
 
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AUTOSIMRC</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; background: #0b1020; color: #eef3ff;
-      font-family: Arial, sans-serif;
-    }
-    header {
-      padding: 18px 24px; background: #111a2e;
-      border-bottom: 1px solid #26334d;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    h1 { margin: 0; font-size: 23px; letter-spacing: 2px; }
-    .status { color: #9baac5; font-size: 12px; }
-    main { padding: 18px; max-width: 1500px; margin: auto; }
-    .toolbar {
-      display: flex; gap: 10px; flex-wrap: wrap;
-      margin-bottom: 15px; align-items: center;
-    }
-    button {
-      border: 0; border-radius: 8px; padding: 11px 18px;
-      color: white; background: #2563eb; cursor: pointer;
-      font-weight: bold;
-    }
-    button.secondary { background: #26344e; }
-    button:disabled { opacity: .5; cursor: not-allowed; }
-    .layout {
-      display: grid; grid-template-columns: minmax(0, 1fr) 320px;
-      gap: 15px;
-    }
-    #map {
-      height: 570px; border-radius: 13px;
-      border: 1px solid #34415b; overflow: hidden;
-    }
-    .panel {
-      background: #121c30; border: 1px solid #293751;
-      border-radius: 13px; padding: 16px; margin-bottom: 14px;
-    }
-    .panel h2 { margin: 0 0 13px; font-size: 17px; }
-    .car-title { display: flex; justify-content: space-between; }
-    .car-title strong { font-size: 15px; }
-    .blue { color: #42a5ff; }
-    .orange { color: #ff9c42; }
-    .stats {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-    }
-    .stat {
-      background: #1b2941; padding: 10px; border-radius: 8px;
-    }
-    .stat small { display: block; color: #9baac5; margin-bottom: 5px; }
-    .stat b { font-size: 18px; }
-    .note { color: #a8b6ce; font-size: 12px; line-height: 1.5; }
-    .legend { display: flex; gap: 18px; margin-top: 12px; font-size: 13px; }
-    .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; }
-    .car-icon {
-      width: 27px; height: 43px; display: flex;
-      align-items: center; justify-content: center;
-      transform-origin: center center;
-    }
-    .car-icon svg { width: 27px; height: 43px; }
-    @media(max-width: 850px) {
-      .layout { grid-template-columns: 1fr; }
-      #map { height: 430px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUTOSIMRC</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b1020;color:#eef3ff;font-family:Arial,sans-serif}
+header{padding:18px 24px;background:#111a2e;border-bottom:1px solid #26334d;display:flex;justify-content:space-between;align-items:center}
+h1{margin:0;font-size:23px;letter-spacing:2px}
+.status{color:#9baac5;font-size:12px}
+main{padding:18px;max-width:1500px;margin:auto}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px;align-items:center}
+button{border:0;border-radius:8px;padding:11px 18px;color:white;background:#2563eb;cursor:pointer;font-weight:bold}
+button.secondary{background:#26344e}
+button:disabled{opacity:.5;cursor:not-allowed}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:15px}
+#map{height:570px;border-radius:13px;border:1px solid #34415b;overflow:hidden}
+.panel{background:#121c30;border:1px solid #293751;border-radius:13px;padding:16px;margin-bottom:14px}
+.panel h2{margin:0 0 13px;font-size:17px}
+.car-title{display:flex;justify-content:space-between}
+.car-title strong{font-size:15px}
+.blue{color:#42a5ff}.orange{color:#ff9c42}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:#1b2941;padding:10px;border-radius:8px}
+.stat small{display:block;color:#9baac5;margin-bottom:5px}
+.stat b{font-size:18px}
+.note{color:#a8b6ce;font-size:12px;line-height:1.5}
+.legend{display:flex;gap:18px;margin-top:12px;font-size:13px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+.car-icon{width:27px;height:43px;display:flex;align-items:center;justify-content:center;transform-origin:center center}
+.car-icon svg{width:27px;height:43px}
+@media(max-width:850px){.layout{grid-template-columns:1fr}#map{height:430px}}
+</style>
 </head>
 <body>
 <header>
-  <h1>AUTOSIMRC</h1>
-  <div class="status">CAR SIMULATION SYSTEM · WERSJA 0.1</div>
+<h1>AUTOSIMRC</h1>
+<div class="status">CAR SIMULATION SYSTEM · VERSION 0.2</div>
 </header>
-
 <main>
-  <div class="toolbar">
-    <button id="start">▶ START</button>
-    <button id="pause" class="secondary" disabled>Ⅱ PAUZA</button>
-    <button id="reset" class="secondary">↻ RESET</button>
-    <span class="status" id="runStatus">Symulacja zatrzymana</span>
-  </div>
-
-  <div class="layout">
-    <section>
-      <div id="map"></div>
-      <div class="legend">
-        <span><i class="dot" style="background:#42a5ff"></i>Audi A3</span>
-        <span><i class="dot" style="background:#ff9c42"></i>Toyota RAV4</span>
-      </div>
-      <p class="note">
-        Mapa korzysta z OpenStreetMap. Pokazana linia jest trasą demonstracyjną,
-        a nie trasą wyznaczoną przez system nawigacji. Pozycje aut są symulowane,
-        nie pochodzą z rzeczywistego GPS.
-      </p>
-    </section>
-
-    <aside>
-      <div class="panel">
-        <h2>Porównanie przejazdu</h2>
-        <div class="stats">
-          <div class="stat"><small>Czas symulacji</small><b id="time">00:00</b></div>
-          <div class="stat"><small>Przewaga dystansu</small><b id="lead">0,0 km</b></div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="car-title">
-          <strong class="blue">AUDI A3 · 2.0 TDI</strong>
-          <span class="note">Auto A</span>
-        </div>
-        <p class="note">Rocznik 2020 · dane silnika do potwierdzenia</p>
-        <div class="stats">
-          <div class="stat"><small>Prędkość</small><b id="speedA">0 km/h</b></div>
-          <div class="stat"><small>Dystans</small><b id="distA">0,0 km</b></div>
-          <div class="stat"><small>Średnia</small><b id="avgA">0 km/h</b></div>
-          <div class="stat"><small>Paliwo</small><b id="fuelA">50,0 l</b></div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="car-title">
-          <strong class="orange">TOYOTA RAV4 · 2.5 HYBRID</strong>
-          <span class="note">Auto B</span>
-        </div>
-        <p class="note">Rocznik 2021 · napęd do potwierdzenia</p>
-        <div class="stats">
-          <div class="stat"><small>Prędkość</small><b id="speedB">0 km/h</b></div>
-          <div class="stat"><small>Dystans</small><b id="distB">0,0 km</b></div>
-          <div class="stat"><small>Średnia</small><b id="avgB">0 km/h</b></div>
-          <div class="stat"><small>Paliwo</small><b id="fuelB">55,0 l</b></div>
-        </div>
-      </div>
-    </aside>
-  </div>
+<div class="toolbar">
+<button id="start">▶ START</button>
+<button id="pause" class="secondary" disabled>Ⅱ PAUSE</button>
+<button id="reset" class="secondary">↻ RESET</button>
+<span class="status" id="runStatus">Simulation stopped</span>
+</div>
+<div class="layout">
+<section>
+<div id="map"></div>
+<div class="legend">
+<span><i class="dot" style="background:#42a5ff"></i>Audi A3</span>
+<span><i class="dot" style="background:#ff9c42"></i>Toyota RAV4</span>
+</div>
+<p class="note">
+Map powered by OpenStreetMap. The displayed route is for demonstration purposes only.
+Vehicle positions are simulated and do not represent real GPS data.
+</p>
+</section>
+<aside>
+<div class="panel">
+<h2>Race comparison</h2>
+<div class="stats">
+<div class="stat"><small>Simulation time</small><b id="time">00:00</b></div>
+<div class="stat"><small>Distance lead</small><b id="lead">0.0 km</b></div>
+</div>
+</div>
+<div class="panel">
+<div class="car-title">
+<strong class="blue">AUDI A3 · 2.0 TDI</strong>
+<span class="note">Car A</span>
+</div>
+<p class="note">Model year 2020 · engine specification to be confirmed</p>
+<div class="stats">
+<div class="stat"><small>Speed</small><b id="speedA">0 km/h</b></div>
+<div class="stat"><small>Distance</small><b id="distA">0.0 km</b></div>
+<div class="stat"><small>Average speed</small><b id="avgA">0 km/h</b></div>
+<div class="stat"><small>Fuel remaining</small><b id="fuelA">50.0 L</b></div>
+</div>
+</div>
+<div class="panel">
+<div class="car-title">
+<strong class="orange">TOYOTA RAV4 · 2.5 HYBRID</strong>
+<span class="note">Car B</span>
+</div>
+<p class="note">Model year 2021 · drivetrain to be confirmed</p>
+<div class="stats">
+<div class="stat"><small>Speed</small><b id="speedB">0 km/h</b></div>
+<div class="stat"><small>Distance</small><b id="distB">0.0 km</b></div>
+<div class="stat"><small>Average speed</small><b id="avgB">0 km/h</b></div>
+<div class="stat"><small>Fuel remaining</small><b id="fuelB">55.0 L</b></div>
+</div>
+</div>
+<div class="panel">
+<h2>Regional settings</h2>
+<div class="stat">
+<small>Currency</small>
+<b>EUR (€)</b>
+</div>
+<p class="note">Distance: kilometers · Speed: km/h · Fuel consumption: L/100 km · Currency: EUR</p>
+</div>
+</aside>
+</div>
 </main>
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  const map = L.map('map').setView([52.2297, 21.0122], 11);
+const euroFormatter=new Intl.NumberFormat("en-IE",{style:"currency",currency:"EUR"});
+function formatEuro(amount){return euroFormatter.format(amount);}
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
+const map=L.map('map').setView([52.2297,21.0122],11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+maxZoom:19,attribution:'&copy; OpenStreetMap contributors'
+}).addTo(map);
 
-  // Testowa geometria do sprawdzenia ruchu i obrotu modeli.
-  const route = [
-    [52.2297,21.0122],
-    [52.2350,21.0250],
-    [52.2390,21.0440],
-    [52.2350,21.0610],
-    [52.2250,21.0750],
-    [52.2140,21.0670],
-    [52.2070,21.0480],
-    [52.2140,21.0300],
-    [52.2297,21.0122]
-  ];
+const route=[
+[52.2297,21.0122],[52.2350,21.0250],[52.2390,21.0440],
+[52.2350,21.0610],[52.2250,21.0750],[52.2140,21.0670],
+[52.2070,21.0480],[52.2140,21.0300],[52.2297,21.0122]
+];
 
-  const routeLine = L.polyline(route, {
-    color: '#64748b', weight: 7, opacity: .8
-  }).addTo(map);
+const routeLine=L.polyline(route,{color:'#64748b',weight:7,opacity:.8}).addTo(map);
+map.fitBounds(routeLine.getBounds(),{padding:[35,35]});
 
-  map.fitBounds(routeLine.getBounds(), { padding: [35,35] });
+function carIcon(color){
+return L.divIcon({
+className:'',iconSize:[27,43],iconAnchor:[13,21],
+html:`<div class="car-icon">
+<svg viewBox="0 0 27 43" xmlns="http://www.w3.org/2000/svg">
+<rect x="3" y="2" width="21" height="39" rx="8" fill="${color}" stroke="#fff" stroke-width="1.5"/>
+<rect x="6" y="9" width="15" height="10" rx="3" fill="#152238"/>
+<rect x="6" y="23" width="15" height="8" rx="2" fill="#152238"/>
+<rect x="5" y="3" width="5" height="3" rx="1" fill="#fff4c2"/>
+<rect x="17" y="3" width="5" height="3" rx="1" fill="#fff4c2"/>
+<rect x="5" y="37" width="5" height="3" rx="1" fill="#ff4242"/>
+<rect x="17" y="37" width="5" height="3" rx="1" fill="#ff4242"/>
+</svg></div>`
+});
+}
 
-  function carIcon(color) {
-    return L.divIcon({
-      className: '',
-      iconSize: [27,43],
-      iconAnchor: [13,21],
-      html: `<div class="car-icon" style="transform:rotate(0deg)">
-        <svg viewBox="0 0 27 43" xmlns="http://www.w3.org/2000/svg">
-          <rect x="3" y="2" width="21" height="39" rx="8" fill="${color}" stroke="#ffffff" stroke-width="1.5"/>
-          <rect x="6" y="9" width="15" height="10" rx="3" fill="#152238"/>
-          <rect x="6" y="23" width="15" height="8" rx="2" fill="#152238"/>
-          <rect x="5" y="3" width="5" height="3" rx="1" fill="#fff4c2"/>
-          <rect x="17" y="3" width="5" height="3" rx="1" fill="#fff4c2"/>
-          <rect x="5" y="37" width="5" height="3" rx="1" fill="#ff4242"/>
-          <rect x="17" y="37" width="5" height="3" rx="1" fill="#ff4242"/>
-        </svg></div>`
-    });
-  }
+const markerA=L.marker(route[0],{icon:carIcon('#258cf4')}).addTo(map);
+const markerB=L.marker(route[0],{icon:carIcon('#f28b32')}).addTo(map);
 
-  const markerA = L.marker(route[0], {icon:carIcon('#258cf4')}).addTo(map);
-  const markerB = L.marker(route[0], {icon:carIcon('#f28b32')}).addTo(map);
+const totalKm=18;
+const state={
+running:false,elapsed:0,last:0,
+a:{progress:0,speed:0,distance:0,fuel:50},
+b:{progress:0,speed:0,distance:0,fuel:55}
+};
 
-  const totalKm = 18;
-  const state = {
-    running: false, elapsed: 0, last: 0,
-    a: { progress: 0, speed: 0, distance: 0, fuel: 50 },
-    b: { progress: 0, speed: 0, distance: 0, fuel: 55 }
-  };
+function pointAt(progress){
+const scaled=Math.max(0,Math.min(.99999,progress))*(route.length-1);
+const i=Math.floor(scaled),t=scaled-i;
+const p1=route[i],p2=route[i+1];
+return [p1[0]+(p2[0]-p1[0])*t,p1[1]+(p2[1]-p1[1])*t];
+}
 
-  function pointAt(progress) {
-    const scaled = Math.max(0, Math.min(.99999, progress)) * (route.length - 1);
-    const i = Math.floor(scaled);
-    const t = scaled - i;
-    const p1 = route[i], p2 = route[i+1];
-    return [
-      p1[0] + (p2[0]-p1[0])*t,
-      p1[1] + (p2[1]-p1[1])*t
-    ];
-  }
+function bearing(progress){
+const p1=pointAt(progress);
+const p2=pointAt(Math.min(.99999,progress+.002));
+const y=Math.sin((p2[1]-p1[1])*Math.PI/180)*Math.cos(p2[0]*Math.PI/180);
+const x=Math.cos(p1[0]*Math.PI/180)*Math.sin(p2[0]*Math.PI/180)-
+Math.sin(p1[0]*Math.PI/180)*Math.cos(p2[0]*Math.PI/180)*
+Math.cos((p2[1]-p1[1])*Math.PI/180);
+return Math.atan2(y,x)*180/Math.PI;
+}
 
-  function bearing(progress) {
-    const p1 = pointAt(progress);
-    const p2 = pointAt(Math.min(.99999, progress + .002));
-    const y = Math.sin((p2[1]-p1[1])*Math.PI/180) *
-      Math.cos(p2[0]*Math.PI/180);
-    const x = Math.cos(p1[0]*Math.PI/180)*Math.sin(p2[0]*Math.PI/180) -
-      Math.sin(p1[0]*Math.PI/180)*Math.cos(p2[0]*Math.PI/180)*
-      Math.cos((p2[1]-p1[1])*Math.PI/180);
-    return Math.atan2(y,x)*180/Math.PI;
-  }
+function moveMarker(marker,progress){
+marker.setLatLng(pointAt(progress));
+const element=marker.getElement();
+if(element){
+const car=element.querySelector('.car-icon');
+if(car)car.style.transform=`rotate(${bearing(progress)}deg)`;
+}
+}
 
-  function moveMarker(marker, progress) {
-    marker.setLatLng(pointAt(progress));
-    const element = marker.getElement();
-    if (element) {
-      const car = element.querySelector('.car-icon');
-      if (car) car.style.transform = `rotate(${bearing(progress)}deg)`;
-    }
-  }
+function update(){
+const a=state.a,b=state.b;
+document.getElementById('time').textContent=
+`${String(Math.floor(state.elapsed/60)).padStart(2,'0')}:${String(Math.floor(state.elapsed%60)).padStart(2,'0')}`;
+document.getElementById('speedA').textContent=`${a.speed.toFixed(0)} km/h`;
+document.getElementById('speedB').textContent=`${b.speed.toFixed(0)} km/h`;
+document.getElementById('distA').textContent=`${a.distance.toFixed(1)} km`;
+document.getElementById('distB').textContent=`${b.distance.toFixed(1)} km`;
+document.getElementById('avgA').textContent=`${(state.elapsed?a.distance/(state.elapsed/3600):0).toFixed(0)} km/h`;
+document.getElementById('avgB').textContent=`${(state.elapsed?b.distance/(state.elapsed/3600):0).toFixed(0)} km/h`;
+document.getElementById('fuelA').textContent=`${a.fuel.toFixed(1)} L`;
+document.getElementById('fuelB').textContent=`${b.fuel.toFixed(1)} L`;
+document.getElementById('lead').textContent=`${Math.abs(a.distance-b.distance).toFixed(1)} km`;
+moveMarker(markerA,a.progress);
+moveMarker(markerB,b.progress);
+}
 
-  function update() {
-    const a = state.a, b = state.b;
-    document.getElementById('time').textContent =
-      `${String(Math.floor(state.elapsed/60)).padStart(2,'0')}:${String(Math.floor(state.elapsed%60)).padStart(2,'0')}`;
-    document.getElementById('speedA').textContent = `${a.speed.toFixed(0)} km/h`;
-    document.getElementById('speedB').textContent = `${b.speed.toFixed(0)} km/h`;
-    document.getElementById('distA').textContent = `${a.distance.toFixed(1)} km`;
-    document.getElementById('distB').textContent = `${b.distance.toFixed(1)} km`;
-    document.getElementById('avgA').textContent = `${(state.elapsed ? a.distance/(state.elapsed/3600) : 0).toFixed(0)} km/h`;
-    document.getElementById('avgB').textContent = `${(state.elapsed ? b.distance/(state.elapsed/3600) : 0).toFixed(0)} km/h`;
-    document.getElementById('fuelA').textContent = `${a.fuel.toFixed(1)} l`;
-    document.getElementById('fuelB').textContent = `${b.fuel.toFixed(1)} l`;
-    document.getElementById('lead').textContent = `${Math.abs(a.distance-b.distance).toFixed(1)} km`;
-    moveMarker(markerA, a.progress);
-    moveMarker(markerB, b.progress);
-  }
+function tick(timestamp){
+if(!state.running)return;
+if(!state.last)state.last=timestamp;
+const dt=Math.min((timestamp-state.last)/1000,.1);
+state.last=timestamp;
+state.elapsed+=dt*60;
 
-  function tick(timestamp) {
-    if (!state.running) return;
-    if (!state.last) state.last = timestamp;
-    const dt = Math.min((timestamp-state.last)/1000, .1);
-    state.last = timestamp;
-    state.elapsed += dt * 60;
+for(const [car,pace,consumption] of [
+[state.a,105,.00065],[state.b,98,.00072]
+]){
+car.speed=pace;
+const km=pace*dt*60/3600;
+car.distance+=km;
+car.progress=Math.min(1,car.distance/totalKm);
+car.fuel=Math.max(0,car.fuel-km*consumption);
+}
 
-    // Wstępny ruch demonstracyjny, nie model fizyczny.
-    for (const [car, pace, consumption] of [
-      [state.a, 105, 0.00065],
-      [state.b, 98, 0.00072]
-    ]) {
-      car.speed = pace;
-      const km = pace * dt * 60 / 3600;
-      car.distance += km;
-      car.progress = Math.min(1, car.distance / totalKm);
-      car.fuel = Math.max(0, car.fuel - km * consumption);
-    }
+update();
+if(state.a.progress>=1&&state.b.progress>=1){
+state.running=false;
+document.getElementById('runStatus').textContent='Demonstration completed';
+document.getElementById('start').disabled=false;
+document.getElementById('pause').disabled=true;
+return;
+}
+requestAnimationFrame(tick);
+}
 
-    update();
-    if (state.a.progress >= 1 && state.b.progress >= 1) {
-      state.running = false;
-      document.getElementById('runStatus').textContent = 'Przejazd demonstracyjny zakończony';
-      document.getElementById('start').disabled = false;
-      document.getElementById('pause').disabled = true;
-      return;
-    }
-    requestAnimationFrame(tick);
-  }
+document.getElementById('start').onclick=()=>{
+if(state.a.progress>=1&&state.b.progress>=1)return;
+state.running=true;state.last=0;
+document.getElementById('runStatus').textContent='Simulation running';
+document.getElementById('start').disabled=true;
+document.getElementById('pause').disabled=false;
+requestAnimationFrame(tick);
+};
 
-  document.getElementById('start').onclick = () => {
-    if (state.a.progress >= 1 && state.b.progress >= 1) return;
-    state.running = true;
-    state.last = 0;
-    document.getElementById('runStatus').textContent = 'Symulacja w toku';
-    document.getElementById('start').disabled = true;
-    document.getElementById('pause').disabled = false;
-    requestAnimationFrame(tick);
-  };
+document.getElementById('pause').onclick=()=>{
+state.running=false;
+document.getElementById('runStatus').textContent='Simulation paused';
+document.getElementById('start').disabled=false;
+document.getElementById('pause').disabled=true;
+};
 
-  document.getElementById('pause').onclick = () => {
-    state.running = false;
-    document.getElementById('runStatus').textContent = 'Symulacja wstrzymana';
-    document.getElementById('start').disabled = false;
-    document.getElementById('pause').disabled = true;
-  };
+document.getElementById('reset').onclick=()=>{
+state.running=false;state.elapsed=0;state.last=0;
+state.a={progress:0,speed:0,distance:0,fuel:50};
+state.b={progress:0,speed:0,distance:0,fuel:55};
+document.getElementById('runStatus').textContent='Simulation stopped';
+document.getElementById('start').disabled=false;
+document.getElementById('pause').disabled=true;
+update();
+};
 
-  document.getElementById('reset').onclick = () => {
-    state.running = false;
-    state.elapsed = 0;
-    state.last = 0;
-    state.a = {progress:0,speed:0,distance:0,fuel:50};
-    state.b = {progress:0,speed:0,distance:0,fuel:55};
-    document.getElementById('runStatus').textContent = 'Symulacja zatrzymana';
-    document.getElementById('start').disabled = false;
-    document.getElementById('pause').disabled = true;
-    update();
-  };
-
-  update();
+update();
 </script>
 </body>
 </html>
