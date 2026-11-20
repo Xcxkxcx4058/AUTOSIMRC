@@ -34,6 +34,27 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .car-icon{width:27px;height:43px;display:flex;align-items:center;justify-content:center;transform-origin:center center}
 .car-icon svg{width:27px;height:43px}
 @media(max-width:850px){.layout{grid-template-columns:1fr}#map{height:430px}}
+
+
+.vehicle-select {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px;
+  margin: 7px 0 15px;
+  background: #1b2941;
+  color: white;
+  border: 1px solid #34415b;
+  border-radius: 8px;
+}
+
+.panel label {
+  display: block;
+  color: #aebbd0;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
 </style>
 </head>
 <body>
@@ -76,37 +97,57 @@ Vehicle positions are simulated and do not represent real GPS data.
 <aside>
 <div class="panel">
 <h2>Race comparison</h2>
-<div class="stats">
-<div class="stat"><small>Simulation time</small><b id="time">00:00</b></div>
-<div class="stat"><small>Distance lead</small><b id="lead">0.0 km</b></div>
-</div>
-</div>
+
 <div class="panel">
-<div class="car-title">
-<strong class="blue">AUDI A3 · 2.0 TDI</strong>
-<span class="note">Car A</span>
+  <div class="car-title">
+    <strong class="blue">CAR A</strong>
+    <span class="note">Vehicle selection</span>
+  </div>
+
+  <label>Make</label>
+  <select id="makeA" class="vehicle-select"><option value="">Loading...</option></select>
+
+  <label>Model</label>
+  <select id="modelA" class="vehicle-select" disabled><option value="">Select model</option></select>
+
+  <label>Engine variant</label>
+  <select id="variantA" class="vehicle-select" disabled><option value="">Select variant</option></select>
+
+  <p class="note" id="detailsA">Select a vehicle from the database.</p>
+
+  <div class="stats">
+    <div class="stat"><small>Speed</small><b id="speedA">0 km/h</b></div>
+    <div class="stat"><small>Distance</small><b id="distA">0.0 km</b></div>
+    <div class="stat"><small>Average speed</small><b id="avgA">0 km/h</b></div>
+    <div class="stat"><small>Fuel remaining</small><b id="fuelA">50.0 L</b></div>
+  </div>
 </div>
-<p class="note">Model year 2020 · engine specification to be confirmed</p>
-<div class="stats">
-<div class="stat"><small>Speed</small><b id="speedA">0 km/h</b></div>
-<div class="stat"><small>Distance</small><b id="distA">0.0 km</b></div>
-<div class="stat"><small>Average speed</small><b id="avgA">0 km/h</b></div>
-<div class="stat"><small>Fuel remaining</small><b id="fuelA">50.0 L</b></div>
-</div>
-</div>
+
 <div class="panel">
-<div class="car-title">
-<strong class="orange">TOYOTA RAV4 · 2.5 HYBRID</strong>
-<span class="note">Car B</span>
+  <div class="car-title">
+    <strong class="orange">CAR B</strong>
+    <span class="note">Vehicle selection</span>
+  </div>
+
+  <label>Make</label>
+  <select id="makeB" class="vehicle-select"><option value="">Loading...</option></select>
+
+  <label>Model</label>
+  <select id="modelB" class="vehicle-select" disabled><option value="">Select model</option></select>
+
+  <label>Engine variant</label>
+  <select id="variantB" class="vehicle-select" disabled><option value="">Select variant</option></select>
+
+  <p class="note" id="detailsB">Select a vehicle from the database.</p>
+
+  <div class="stats">
+    <div class="stat"><small>Speed</small><b id="speedB">0 km/h</b></div>
+    <div class="stat"><small>Distance</small><b id="distB">0.0 km</b></div>
+    <div class="stat"><small>Average speed</small><b id="avgB">0 km/h</b></div>
+    <div class="stat"><small>Fuel remaining</small><b id="fuelB">55.0 L</b></div>
+  </div>
 </div>
-<p class="note">Model year 2021 · drivetrain to be confirmed</p>
-<div class="stats">
-<div class="stat"><small>Speed</small><b id="speedB">0 km/h</b></div>
-<div class="stat"><small>Distance</small><b id="distB">0.0 km</b></div>
-<div class="stat"><small>Average speed</small><b id="avgB">0 km/h</b></div>
-<div class="stat"><small>Fuel remaining</small><b id="fuelB">55.0 L</b></div>
-</div>
-</div>
+
 <div class="panel">
 <h2>Regional settings</h2>
 <div class="stat">
