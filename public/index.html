@@ -354,7 +354,7 @@ async function setupVehicleSelector(letter) {
   const modelSelect = document.getElementById("model" + letter);
   const variantSelect = document.getElementById("variant" + letter);
   const details = document.getElementById("details" + letter);
-  setupVehicleSelector(letter)
+  let loadedVariants = [];
 
   function fillSelect(select, placeholder, items, getValue, getLabel) {
     select.innerHTML = "";
@@ -429,7 +429,7 @@ car.acceleration = vehicle.acceleration_0_100_s
 car.consumption = Number(vehicle.fuel_consumption_l_100km) || 8;
 car.fuelTank = Number(vehicle.fuel_tank_l) > 0
   ? Number(vehicle.fuel_tank_l)
-  : 50;
+  : 0;
 
 car.fuel = car.fuelTank;
 
