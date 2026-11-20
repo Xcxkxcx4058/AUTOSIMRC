@@ -46,6 +46,19 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <button id="start">▶ START</button>
 <button id="pause" class="secondary" disabled>Ⅱ PAUSE</button>
 <button id="reset" class="secondary">↻ RESET</button>
+
+<label for="speedMultiplier" style="color:#9baac5;font-size:13px">
+  Simulation speed:
+</label>
+<select id="speedMultiplier" style="padding:10px;background:#1b2941;color:white;border:1px solid #34415b;border-radius:8px">
+  <option value="1">1× Real time</option>
+  <option value="5">5×</option>
+  <option value="10">10×</option>
+  <option value="20">20×</option>
+  <option value="30">30×</option>
+  <option value="60">60×</option>
+</select>
+
 <span class="status" id="runStatus">Simulation stopped</span>
 </div>
 <div class="layout">
@@ -178,8 +191,15 @@ if(car)car.style.transform=`rotate(${bearing(progress)}deg)`;
 
 function update(){
 const a=state.a,b=state.b;
-document.getElementById('time').textContent=
-`${String(Math.floor(state.elapsed/60)).padStart(2,'0')}:${String(Math.floor(state.elapsed%60)).padStart(2,'0')}`;
+
+const hours = Math.floor(state.elapsed / 3600);
+const minutes = Math.floor((state.elapsed % 3600) / 60);
+const seconds = Math.floor(state.elapsed % 60);
+
+document.getElementById('time').textContent =
+  `${String(hours).padStart(2,'0')}:` +
+  `${String(minutes).padStart(2,'0')}:` +
+  `${String(seconds).padStart(2,'0')}`;
 document.getElementById('speedA').textContent=`${a.speed.toFixed(0)} km/h`;
 document.getElementById('speedB').textContent=`${b.speed.toFixed(0)} km/h`;
 document.getElementById('distA').textContent=`${a.distance.toFixed(1)} km`;
@@ -193,33 +213,35 @@ moveMarker(markerA,a.progress);
 moveMarker(markerB,b.progress);
 }
 
+
 function tick(timestamp){
-if(!state.running)return;
-if(!state.last)state.last=timestamp;
-const dt=Math.min((timestamp-state.last)/1000,.1);
-state.last=timestamp;
-state.elapsed+=dt*60;
+  if(!state.running)return;
+  if(!state.last)state.last=timestamp;
+  const dt=Math.min((timestamp-state.last)/1000,.1);
+  state.last=timestamp;
+  state.elapsed+=dt*60;
 
-for(const [car,pace,consumption] of [
-[state.a,105,.00065],[state.b,98,.00072]
-]){
-car.speed=pace;
-const km=pace*dt*60/3600;
-car.distance+=km;
-car.progress=Math.min(1,car.distance/totalKm);
-car.fuel=Math.max(0,car.fuel-km*consumption);
+  for(const [car,pace,consumption] of [
+    [state.a,105,.00065],[state.b,98,.00072]
+  ]){
+    car.speed=pace;
+    const km=pace*dt*60/3600;
+    car.distance+=km;
+    car.progress=Math.min(1,car.distance/totalKm);
+    car.fuel=Math.max(0,car.fuel-km*consumption);
+  }
+
+  update();
+  if(state.a.progress>=1&&state.b.progress>=1){
+    state.running=false;
+    document.getElementById('runStatus').textContent='Demonstration completed';
+    document.getElementById('start').disabled=false;
+    document.getElementById('pause').disabled=true;
+    return;
+  }
+  requestAnimationFrame(tick);
 }
 
-update();
-if(state.a.progress>=1&&state.b.progress>=1){
-state.running=false;
-document.getElementById('runStatus').textContent='Demonstration completed';
-document.getElementById('start').disabled=false;
-document.getElementById('pause').disabled=true;
-return;
-}
-requestAnimationFrame(tick);
-}
 
 document.getElementById('start').onclick=()=>{
 if(state.a.progress>=1&&state.b.progress>=1)return;
