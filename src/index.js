@@ -102,6 +102,35 @@ if (url.pathname === "/api/models" && request.method === "GET") {
     models: result.results.map(row => row.model)
   });
 }
+    if (url.pathname === "/api/variants" && request.method === "GET") {
+  const make = url.searchParams.get("make");
+  const model = url.searchParams.get("model");
+
+  if (!make || !model) {
+    return Response.json({
+      success: false,
+      error: "Make and model are required"
+    }, { status: 400 });
+  }
+
+  const result = await env.DB.prepare(`
+    SELECT id, make, model, variant, year_from, year_to,
+           engine_displacement_cc, power_hp, torque_nm,
+           fuel_type, transmission, drivetrain,
+           weight_kg, fuel_consumption_l_100km,
+           top_speed_kmh, acceleration_0_100_s,
+           specifications_json
+    FROM vehicles
+    WHERE make = ? AND model = ?
+    ORDER BY year_from, variant
+  `).bind(make.toUpperCase(), model).all();
+
+  return Response.json({
+    success: true,
+    count: result.results.length,
+    variants: result.results
+  });
+}
     if (url.pathname === "/api/vehicles" && request.method === "GET") {
       const result = await env.DB.prepare(
         "SELECT * FROM vehicles ORDER BY make, model, year"
