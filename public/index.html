@@ -295,5 +295,76 @@ update();
 
 update();
 </script>
+  
+<section id="admin-import" style="max-width:700px;margin:40px auto;padding:24px;background:#172033;color:white;border-radius:14px;font-family:Arial,sans-serif;">
+  <h2>Administrator — Vehicle Database Import</h2>
+  <p>Import vehicle specifications from a CSV file.</p>
+
+  <label for="importKey">Administrator key</label>
+  <input id="importKey" type="password" autocomplete="off"
+    placeholder="Enter administrator key"
+    style="display:block;width:100%;box-sizing:border-box;padding:12px;margin:8px 0 18px;">
+
+  <label for="importFile">CSV file</label>
+  <input id="importFile" type="file" accept=".csv,text/csv"
+    style="display:block;margin:8px 0 18px;">
+
+  <button id="importButton" type="button"
+    style="padding:12px 20px;background:#2878ff;color:white;border:0;border-radius:8px;cursor:pointer;">
+    Import CSV
+  </button>
+
+  <p id="importStatus" role="status" style="margin-top:18px;"></p>
+</section>
+
+<script>
+document.getElementById("importButton").addEventListener("click", async () => {
+  const key = document.getElementById("importKey").value;
+  const file = document.getElementById("importFile").files[0];
+  const status = document.getElementById("importStatus");
+  const button = document.getElementById("importButton");
+
+  if (!key || !file) {
+    status.textContent = "Enter the administrator key and select a CSV file.";
+    return;
+  }
+
+  if (!file.name.toLowerCase().endsWith(".csv")) {
+    status.textContent = "Please select a CSV file.";
+    return;
+  }
+
+  const form = new FormData();
+  form.append("file", file);
+  form.append("source_url", "https://cardata.wiki/");
+
+  button.disabled = true;
+  status.textContent = "Importing... Please wait.";
+
+  try {
+    const response = await fetch("/api/admin/import", {
+      method: "POST",
+      headers: { "X-Admin-Key": key },
+      body: form
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.details || result.error || "Import failed");
+    }
+
+    status.textContent =
+      "Success! Make: " + result.make +
+      " | Imported: " + result.imported +
+      " | License: " + result.license;
+  } catch (error) {
+    status.textContent = "Error: " + error.message;
+  } finally {
+    button.disabled = false;
+  }
+});
+</script>
+
 </body>
 </html>
