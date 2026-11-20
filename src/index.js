@@ -71,7 +71,37 @@ export default {
         database: Boolean(env.DB)
       });
     }
+if (url.pathname === "/api/makes" && request.method === "GET") {
+  const result = await env.DB.prepare(
+    "SELECT DISTINCT make FROM vehicles ORDER BY make"
+  ).all();
 
+  return Response.json({
+    success: true,
+    makes: result.results.map(row => row.make)
+  });
+}
+
+if (url.pathname === "/api/models" && request.method === "GET") {
+  const make = url.searchParams.get("make");
+
+  if (!make) {
+    return Response.json({
+      success: false,
+      error: "Make is required"
+    }, { status: 400 });
+  }
+
+  const result = await env.DB.prepare(
+    "SELECT DISTINCT model FROM vehicles WHERE make = ? ORDER BY model"
+  ).bind(make.toUpperCase()).all();
+
+  return Response.json({
+    success: true,
+    make: make.toUpperCase(),
+    models: result.results.map(row => row.model)
+  });
+}
     if (url.pathname === "/api/vehicles" && request.method === "GET") {
       const result = await env.DB.prepare(
         "SELECT * FROM vehicles ORDER BY make, model, year"
