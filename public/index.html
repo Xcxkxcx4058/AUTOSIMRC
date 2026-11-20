@@ -334,6 +334,87 @@ document.getElementById('pause').disabled=true;
 update();
 };
 
+
+
+async function setupVehicleSelector(letter) {
+  const makeSelect = document.getElementById("make" + letter);
+  const modelSelect = document.getElementById("model" + letter);
+  const variantSelect = document.getElementById("variant" + letter);
+  const details = document.getElementById("details" + letter);
+
+  function fillSelect(select, placeholder, items, getValue, getLabel) {
+    select.innerHTML = "";
+    select.add(new Option(placeholder, ""));
+    items.forEach(item => {
+      select.add(new Option(getLabel(item), getValue(item)));
+    });
+  }
+
+  try {
+    const response = await fetch("/api/makes");
+    const data = await response.json();
+
+    fillSelect(makeSelect, "Select make", data.makes, x => x, x => x);
+
+    makeSelect.onchange = async () => {
+      modelSelect.disabled = true;
+      variantSelect.disabled = true;
+      fillSelect(modelSelect, "Loading models...", [], x => x, x => x);
+      fillSelect(variantSelect, "Select variant", [], x => x, x => x);
+
+      if (!makeSelect.value) return;
+
+      const result = await fetch(
+        "/api/models?make=" + encodeURIComponent(makeSelect.value)
+      );
+      const models = await result.json();
+
+      fillSelect(modelSelect, "Select model", models.models, x => x, x => x);
+      modelSelect.disabled = false;
+      details.textContent = "Choose a model.";
+    };
+
+    modelSelect.onchange = async () => {
+      variantSelect.disabled = true;
+      fillSelect(variantSelect, "Loading variants...", [], x => x, x => x);
+
+      if (!modelSelect.value) return;
+
+      const url = "/api/variants?make=" +
+        encodeURIComponent(makeSelect.value) +
+        "&model=" + encodeURIComponent(modelSelect.value);
+
+      const result = await fetch(url);
+      const data = await result.json();
+
+      fillSelect(
+        variantSelect,
+        "Select engine variant",
+        data.variants,
+        x => x.id,
+        x => `${x.variant} (${x.year_from}-${x.year_to})`
+      );
+
+      variantSelect.disabled = false;
+      details.textContent = `${data.count} available variants.`;
+    };
+
+    variantSelect.onchange = () => {
+      const selected = variantSelect.selectedOptions[0];
+      if (selected && selected.value) {
+        details.textContent = "Selected database vehicle: " + selected.textContent;
+      }
+    };
+
+  } catch (error) {
+    details.textContent = "Could not load vehicle database.";
+    console.error(error);
+  }
+}
+
+setupVehicleSelector("A");
+setupVehicleSelector("B");
+
 update();
 </script>
   
