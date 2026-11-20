@@ -8,5 +8,12 @@
     "directory": "./public",
     "binding": "ASSETS",
     "run_worker_first": ["/api/*"]
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "autosimrc-db",
+      "database_id": "7345731c-0720-46c2-98da-65f48e2b9970"
+    }
+  ]
 }
